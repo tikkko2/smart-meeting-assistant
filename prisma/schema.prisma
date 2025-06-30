@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Meeting {
+  id          String   @id @default(cuid())
+  title       String
+  transcript  String?
+  summary     String?
+  actionItems Json?
+  decisions   Json?
+  audioUrl    String?
+  imageUrl    String?
+  embeddings  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  participants Participant[]
+  searchQueries SearchQuery[]
+
+  @@map("meetings")
+}
+
+model Participant {
+  id        String  @id @default(cuid())
+  name      String
+  role      String?
+  meetingId String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@map("participants")
+}
+
+model SearchQuery {
+  id        String   @id @default(cuid())
+  query     String
+  results   Json
+  meetingId String?
+  meeting   Meeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@map("search_queries")
+}
